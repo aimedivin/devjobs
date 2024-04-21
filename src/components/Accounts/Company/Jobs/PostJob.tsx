@@ -3,14 +3,13 @@ import React, { useState } from 'react'
 import Button from '../../../UI/Button'
 import Notification from '../../../Notification/Notification'
 
-import './Postjob.css'
-
-import { API_BASE_URL } from '../../../../utils/global'
-import { isTemplateSpan } from 'typescript'
+import './Postjob.css';
 
 interface propsType {
     // signInFormActive: () => void
 }
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const PostJob = (props: propsType) => {
     const [loading, setLoading] = useState(false);

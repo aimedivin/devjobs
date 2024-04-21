@@ -1,12 +1,9 @@
-import React, { MouseEventHandler, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import transformTime from '../../../../utils/transformTime';
 
-//import "./Jobs.css";
 import './AccountJobs.css';
 
-import Button from "../../../UI/Button";
-import { log } from "console";
 import Notification from "../../../Notification/Notification";
 
 
