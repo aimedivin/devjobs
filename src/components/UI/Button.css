@@ -19,6 +19,10 @@
 .first--btn:hover {
     background-color: var(--light-violet);
 }
+.first--btn:disabled {
+    background-color: var(--light-violet);
+    cursor:not-allowed;
+}
 
 .second--btn {
     color: var(--violet);

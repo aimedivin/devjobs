@@ -5,6 +5,7 @@
 }
 .account--jobs-title {
     width: 100%;
+    font-weight: 500;
 }
 .account--jobs .job__location {
     display: flex;

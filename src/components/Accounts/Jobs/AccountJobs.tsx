@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 
-import transformTime from '../../../../utils/transformTime';
+import transformTime from '../../../utils/transformTime';
 
 import './AccountJobs.css';
 
-import Notification from "../../../Notification/Notification";
+import Notification from "../../Notification/Notification";
 
 
 interface props {
     setIsViewJob: (value: any) => void
     companyId?: string;
     jobsData: JobType[];
+    accountType: string;
+    setJobEdit?: (id: string) => void;
 }
 
 interface CompanyType {
@@ -37,6 +39,7 @@ const API_BASE_URL = 'http://localhost:3000';
 const AccountJobs = (props: props) => {
     const [notification, setNotification] = useState('');
     const [jobsData, setJobs] = useState<JobType[]>(props.jobsData);
+    
 
     const jobViewHandler = (event: React.MouseEvent) => {
         const jobId = (event.currentTarget as HTMLElement).getAttribute('id')!;
@@ -86,7 +89,7 @@ const AccountJobs = (props: props) => {
     return (
         <div className="jobs account--jobs">
             {notification.length ? <Notification text={notification} /> : ''}
-            <h2 className="account--jobs-title">Your Jobs</h2>
+            <p className="account--jobs-title">{props.accountType === 'company' ? 'Your Jobs' : 'Applied Jobs'}</p>
             {
                 jobsData.length ? jobsData!.map((job) => {
                     return (
@@ -116,10 +119,17 @@ const AccountJobs = (props: props) => {
                             </div>
                             <div className="job__location">
                                 <p>{job.location}</p>
-                                <div className="account--job-action">
-                                    <p className="account--job-edit">Edit</p>
+                                {(props.accountType === 'company') && <div className="account--job-action">
+                                    <p onClick={(event) => {
+                                        if (props.setJobEdit) {
+                                            props.setJobEdit((event.target as HTMLElement).getAttribute('id')!)
+                                        }
+                                    }} 
+                                    className="account--job-edit" 
+                                    id={job.id}>Edit</p>
+
                                     <p onClick={deleteJobHandler} id={job.id} className="account--job-delete">Delete</p>
-                                </div>
+                                </div>}
                             </div>
                         </div>
                     );

@@ -63,7 +63,7 @@ const Signup = (props: propsType) => {
 
         if (response.ok) {
             setNotification('Success! 🚀 Registration successful.');
-            const result = await response.json();
+            // const result = await response.json();
             setTimeout(() => {
                 setNotification('')
             }, 2000);

@@ -4,30 +4,89 @@ import Button2 from '../../UI/Button2';
 import Button from '../../UI/Button';
 
 import transformTime from '../../../utils/transformTime'
+import { useEffect, useState } from 'react';
 
 interface jobViewProp {
     jobData?: any;
     setAuthPage?: () => void
 }
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const JobView = (props: jobViewProp) => {
-    
+
+    const [applyText, setApplyText] = useState('Apply Now');
+    const [btnDisable, setBtnDisable] = useState(true);
+    const [btnLoading, setBtnLoading] = useState(true);
+
     const companyWebsiteHandler = () => {
 
         if (props.jobData.company.website.split('').splice(9).join() === 'https://' ||
-            props.jobData.company.website.split('').splice(8).join() === 'https://' ){
+            props.jobData.company.website.split('').splice(8).join() === 'https://') {
             window.open(`${props.jobData.company.website}`, '_blank', 'noopener,noreferrer');
-            }
+        }
 
         window.open(`https://${props.jobData.company.website}`, '_blank', 'noopener,noreferrer');
     }
 
-    const applyNowHandler = () => {
+    useEffect(() => {
+        const fetchAccountInfo = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/account`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        }
+                    );
+
+                    if (response.ok) {
+                        const account = (await response.json()).account;
+                        for (const AppliedJob of props.jobData.AppliedJobs) {
+                            if (AppliedJob.userId === account.id) {
+                                setApplyText('Applied');
+                                setBtnLoading(false);
+                                return;
+                            }
+                        }
+                    }
+                    throw new Error('')
+
+                } catch (error) {
+                    setBtnDisable(false);
+                    setBtnLoading(false);
+                }
+            } else {
+                setBtnDisable(false);
+                setBtnLoading(false);
+            }
+        }
+        fetchAccountInfo();
+    })
+
+    const applyNowHandler = async () => {
         const token = localStorage.getItem('token');
         if (!token || !token.length) {
             props.setAuthPage!();
+            return;
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/jobs/apply/${props.jobData.id}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            )
+
+            if (response.ok) {
+                setApplyText('Applied')
+            }
+        } catch (error) {
+
         }
     }
 
@@ -58,7 +117,7 @@ const JobView = (props: jobViewProp) => {
                     <p className='job-view__location'>{props.jobData.location}</p>
                 </div>
                 <div onClick={applyNowHandler}>
-                <Button className='job__time_btn' text='Apply Now'/>
+                    <Button className='job__time_btn' text={applyText} loading={btnLoading} disabled={btnDisable} />
                 </div>
             </div>
             <div className='job_view__description'>
@@ -90,7 +149,9 @@ const JobView = (props: jobViewProp) => {
                 <h3>{props.jobData.position}</h3>
                 <p>So Digital Inc.</p>
             </div>
-            <Button className='job--view__footer_btn' text='Apply Now' />
+            <div onClick={applyNowHandler}>
+                <Button className='job__time_btn' text={applyText} loading={btnLoading} disabled={btnDisable} />
+            </div>
         </div>
     </div>
 }

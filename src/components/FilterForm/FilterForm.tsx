@@ -2,14 +2,25 @@ import { useState, useEffect } from "react";
 import Button from "../UI/Button";
 import "./FilterForm.css";
 
-const FilterForm = (props: any) => {
-  const [locationFilter, setLocationFilter] = useState('');
+interface Props {
+  filterJobsForm: (formData: {location?: string; title: string; fulltime?: string; }) => void
+}
+
+const FilterForm = (props: Props) => {
 
   const onFilterSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+    event.preventDefault()
+    const formData = new FormData(event.target as HTMLFormElement);
+    
+    const filterInputs: { location?: string; title: string; fulltime?: string; } = {
+      title: `${formData.get('title')}`,
+      location: `${formData.get('location')}`,
+      fulltime: `${formData.get('fulltime')}`
+    }
+    
 
-    //props.filterJobs(locationFilter)
-    setLocationFilter('')
+    props.filterJobsForm(filterInputs);
+    (event.target as HTMLFormElement).reset();
   }
 
   const [width, setWidth] = useState(window.innerWidth);
@@ -37,6 +48,7 @@ const FilterForm = (props: any) => {
         </figure>
         <input
           type="text"
+          name="title"
           className="filter__text"
           placeholder={(width > 992) ? 'Filter by title, companies, expertise...' : 'Filter by title...'}
         />
@@ -50,10 +62,7 @@ const FilterForm = (props: any) => {
           />
         </figure>
         <input
-          value={locationFilter}
-          onChange={
-            (event) => { setLocationFilter((event.target as HTMLInputElement).value) }
-          }
+          name= 'location'
           type="text"
           className="filter__text"
           placeholder="Filter by location..."
@@ -62,7 +71,7 @@ const FilterForm = (props: any) => {
       <div className="filter__separator"></div>
       <div className="filter__item filter--full-time">
         <p className="filter__checkbox">
-          <input type="checkbox" name="" id="" />
+          <input type="checkbox" name="fulltime" id="" />
           <span>{(width > 992) ? 'Full Time Only' : 'Full Time'}</span>
         </p>
       </div>
