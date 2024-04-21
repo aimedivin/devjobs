@@ -1,12 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
 import FilterForm from "./components/FilterForm/FilterForm";
 import Jobs from "./components/Jobs/Jobs";
 import JobView from "./components/Jobs/JobView/JobView";
 import Auth from "./components/Auth/Auth";
-import Company from "./components/Accounts/Company/Company";
+import Company from "./components/Accounts/Company";
+import User from "./components/Accounts/User";
 
+interface filterData {
+  title ?: string;
+  location ?: string;
+  fulltime ?: string
+}
 
 function App() {
   let darkModeValue = localStorage.getItem('darkMode') === 'true' ? true : false;
@@ -32,9 +38,9 @@ function App() {
   }
 
   // FILTER JOB FUNCTION
-  const [filterText, setFilterText] = useState('')
-  const onFilterJobHandler = (job: any) => {
-    setFilterText(job);
+  const [filterData, setFilterData] = useState<filterData>({})
+  const onFilterJobHandler = (Data: filterData) => {
+    setFilterData(Data);
   }
 
   // AUTHORIZATION PAGE
@@ -46,21 +52,21 @@ function App() {
   //NAVIGATE TO HOME PAGE 
   const setJobsPageHandler = () => {
     setAuthPage(false);
-    setIsViewJob(false)
+    setIsViewJob(false);
+    setIsAccountProfile('')
   }
 
   // PROFILE DISPLAY
-  const [isCompanyProfile, setIsCompanyProfile] = useState(false);
-  const [isUserProfile, setIsUserProfile] = useState(false);
+  const [isAccountProfile, setIsAccountProfile] = useState('');
 
   const setProfilePageHandler = () => {
     const token = localStorage.getItem('token');
-    const isCompany = localStorage.getItem('isCompany');
-    if (token && isCompany === 'true') {
-      setIsCompanyProfile(true);
+    const accountType = localStorage.getItem('accountType');
+    if (token && accountType === 'company') {
+      setIsAccountProfile('company');
     }
-    else if (token && isCompany === 'false') {
-      setIsUserProfile(false);
+    else if (token && accountType === 'user') {
+      setIsAccountProfile('user');
     } else {
       setAuthPage(true);
     }
@@ -74,21 +80,27 @@ function App() {
         setProfilePage={setProfilePageHandler}
       />
 
-      {!isCompanyProfile && !authPage && (!isViewJob && <FilterForm filterJobs={onFilterJobHandler} />)}
-      {!authPage && (!isViewJob && (isCompanyProfile && <Company removeAccount={() => {setIsCompanyProfile(false)}} setIsViewJob={setIsViewJobHandler} />))}
-      {/* {!authPage && (!isViewJob && (isUserProfile && <Company />))} */}
-      {!isCompanyProfile && !authPage && (!isViewJob && <Jobs
+      {(isAccountProfile === '') && !authPage && (!isViewJob && <FilterForm filterJobsForm={onFilterJobHandler} />)}
+
+      {!authPage && (!isViewJob && ((isAccountProfile === 'company') && <Company removeAccount={() => { setIsAccountProfile('') }} setIsViewJob={setIsViewJobHandler} />))}
+
+      {!authPage && (!isViewJob && ((isAccountProfile === 'user') && <User removeAccount={() => { setIsAccountProfile('') }} setIsViewJob={setIsViewJobHandler} />))}
+
+      {(isAccountProfile === '') && !authPage && (!isViewJob && <Jobs
         // jobsData={jobsData}
-        filterText={filterText}
+        filterData={filterData}
         setIsViewJob={setIsViewJobHandler}
       />)}
+
       {!authPage && (isViewJob && <JobView
         setAuthPage={setAuthPageHandler}
         jobData={singleJobData} />)}
+
       {authPage && <Auth removeAuth={() => {
         setAuthPage(false)
         setIsViewJob(false)
-        }}/>}
+      }} />
+      }
     </div>
   );
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, CSSProperties } from "react";
+import React, { useEffect, useState } from "react";
 
 import transformTime from '../../utils/transformTime'
 
@@ -9,7 +9,11 @@ import { PropagateLoader } from "react-spinners";
 
 
 interface props {
-    filterText: string
+    filterData?: {
+        title?: string;
+        location?: string;
+        fulltime?: string
+    }
     setIsViewJob: (value: any, mode: string) => void
 }
 interface CompanyType {
@@ -36,16 +40,40 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Jobs = (props: props) => {
     let [loading, setLoading] = useState(true);
-    const [jobsData, setJobs] = useState<JobType[]>([]);
+    const [jobsData, setJobsData] = useState<JobType[]>([]);
 
     useEffect(() => {
+        
         const fetchJobs = async () => {
 
             const response = await fetch(`${API_BASE_URL}/api/jobs`);
 
             if (response.ok) {
                 const jobs: JobType[] = (await response.json()).jobs;
-                setJobs([...jobs])
+                
+                if (props.filterData && (props.filterData.title || props.filterData.location || props.filterData.fulltime)) {
+                    // console.log(props.filterData.title);
+                    // console.log(props.filterData.location);
+                    // console.log(props.filterData.fulltime);
+                    
+                    const result = [];
+                    for(let i = 0; i < jobs.length; i++) {
+                        if (jobs[i].location!.toLocaleLowerCase() === props.filterData.location!.toLocaleLowerCase()) {
+                            result.push(jobs[i]);
+                        }
+                        if (jobs[i].position!.toLocaleLowerCase() === props.filterData.title!.toLocaleLowerCase()) {
+                            result.push(jobs[i]);
+                        }
+                        if (jobs[i].contract!.toLocaleLowerCase() === (props.filterData.fulltime === 'on' ? 'full time': 'part time' )) {
+                            result.push(jobs[i]);
+                        }
+                    }
+
+                    setJobsData([...Array.from(new Set(result))]);
+                    return
+                }
+
+                setJobsData([...jobs])
                 setLoading(false)
             }
         }
@@ -62,19 +90,6 @@ const Jobs = (props: props) => {
             }
         }
     }
-    // const [jobData, setJobData] = useState([...Data])
-
-    // if (props.filterText.length) {
-
-    //     setJobData(prevData => {
-    //         return Data.filter(job => {
-    //             if (job.location.toLocaleLowerCase() === props.filterText) {
-    //                 return true;
-    //             }
-    //             return false;
-    //         })
-    //     })
-    // }
 
     return (
         <div className="jobs">
@@ -112,7 +127,7 @@ const Jobs = (props: props) => {
                     );
                 })
                     :
-                    loading ? <div> <PropagateLoader color="#5964e0"/> </div>: <p>no Jobs found</p>
+                    loading ? <div> <PropagateLoader color="#5964e0" /> </div> : <p>no Jobs found</p>
             }
             {jobsData.length > 10 && <div className="jobs--lod-more">
                 <Button className="jobs--btn" text="Load More" />

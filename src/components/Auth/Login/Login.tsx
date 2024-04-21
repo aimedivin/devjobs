@@ -1,4 +1,4 @@
-import React, { useState, CSSProperties } from 'react'
+import React, { useState } from 'react'
 
 import Button from '../../UI/Button'
 
@@ -55,7 +55,7 @@ const Login = (props: propsType) => {
                         body: JSON.stringify(formData)
                     }
                 );
-                localStorage.setItem('isCompany', 'true');
+                localStorage.setItem('accountType', 'company');
             } else {
                 response = await fetch(`${API_BASE_URL}/api/auth/user/login`,
                     {
@@ -67,7 +67,7 @@ const Login = (props: propsType) => {
                     }
                 );
 
-                localStorage.setItem('isCompany', 'false')
+                localStorage.setItem('accountType', 'user');
             }
 
             if (response.ok) {
