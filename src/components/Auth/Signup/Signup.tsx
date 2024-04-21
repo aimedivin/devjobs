@@ -6,7 +6,7 @@ import Notification from '../../Notification/Notification'
 import '../Login/Login.css'
 import './Signup.css'
 
-import { API_BASE_URL } from '../../../utils/global'
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 interface propsType {
     signInFormActive: () => void

@@ -1,11 +1,11 @@
-import React, { MouseEventHandler, useEffect, useState } from "react";
+import React, { useEffect, useState, CSSProperties } from "react";
 
 import transformTime from '../../utils/transformTime'
 
 import "./Jobs.css";
-import Data from "../Data/data.json";
 
 import Button from "../UI/Button";
+import { PropagateLoader } from "react-spinners";
 
 
 interface props {
@@ -31,9 +31,11 @@ interface JobType {
     company?: CompanyType;
 }
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
 const Jobs = (props: props) => {
+    let [loading, setLoading] = useState(true);
     const [jobsData, setJobs] = useState<JobType[]>([]);
 
     useEffect(() => {
@@ -44,6 +46,7 @@ const Jobs = (props: props) => {
             if (response.ok) {
                 const jobs: JobType[] = (await response.json()).jobs;
                 setJobs([...jobs])
+                setLoading(false)
             }
         }
         fetchJobs()
@@ -109,7 +112,7 @@ const Jobs = (props: props) => {
                     );
                 })
                     :
-                    <p>no Jobs found</p>
+                    loading ? <div> <PropagateLoader color="#5964e0"/> </div>: <p>no Jobs found</p>
             }
             {jobsData.length > 10 && <div className="jobs--lod-more">
                 <Button className="jobs--btn" text="Load More" />

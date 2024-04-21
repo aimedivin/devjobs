@@ -5,8 +5,6 @@ import Button2 from '../../UI/Button2';
 import AccountJobs from './Jobs/AccountJobs';
 
 import './Company.css';
-import JobView from '../../Jobs/JobView/JobView';
-import { API_BASE_URL } from '../../../utils/global';
 import PostJob from './Jobs/PostJob';
 
 interface Props {
@@ -33,6 +31,8 @@ interface AccountType {
     logoBackground?: string;
     Jobs: JobType[];
 }
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Company = (props: Props) => {
     const [accountData, setAccountData] = useState<AccountType>();

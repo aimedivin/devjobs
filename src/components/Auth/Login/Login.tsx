@@ -3,8 +3,6 @@ import React, { useState, CSSProperties } from 'react'
 import Button from '../../UI/Button'
 
 import './Login.css'
-
-import { API_BASE_URL } from '../../../utils/global'
 import Notification from '../../Notification/Notification'
 
 interface propsType {
@@ -16,6 +14,8 @@ interface FormData {
     email: string;
     password: string;
 }
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Login = (props: propsType) => {
     const [loading, setLoading] = useState(false);
@@ -44,44 +44,56 @@ const Login = (props: propsType) => {
         setLoading(true)
         let response;
 
-        if (isCompany) {
-            response = await fetch(`${API_BASE_URL}/api/auth/company/login`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                }
-            );
-            localStorage.setItem('isCompany', 'true');
-        } else {
-            response = await fetch(`${API_BASE_URL}/api/auth/user/login`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                }
-            );
+        try {
+            if (isCompany) {
+                response = await fetch(`${API_BASE_URL}/api/auth/company/login`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    }
+                );
+                localStorage.setItem('isCompany', 'true');
+            } else {
+                response = await fetch(`${API_BASE_URL}/api/auth/user/login`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    }
+                );
 
-            localStorage.setItem('isCompany', 'false')
-        }
+                localStorage.setItem('isCompany', 'false')
+            }
 
-        if (response.ok) {
-            const { token, refreshToken } = await response.json();
-            localStorage.setItem('token', token);
-            localStorage.setItem('refreshToken', token);
-            setNotification('')
-            setLoading(false);
-            props.removeAuth();
-        } else {
-            setNotification('Invalid Credentials.')
+            if (response.ok) {
+                const { token, refreshToken } = await response.json();
+                localStorage.setItem('token', token);
+                localStorage.setItem('refreshToken', refreshToken);
+                setNotification('Login successful! Welcome!')
+                props.removeAuth();
+                setLoading(false);
+            } else if (response.status === 401) {
+                setNotification('Invalid Credentials.')
+                setLoading(false)
+            } else {
+                throw new Error('');
+            }
             setTimeout(() => {
                 setNotification('')
             }, 3000);
-            setLoading(false)
+
+            
+        } catch (error) {
+            setNotification('Something went wrong, Try again!');
+            setTimeout(() => {
+                setNotification('')
+            }, 3000);
+            setLoading(false);
         }
     }
 
