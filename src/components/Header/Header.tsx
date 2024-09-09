@@ -1,7 +1,7 @@
 import "./Header.css";
 import { useEffect, useState } from "react";
 
-import profilePhoto from '../assets/profile.png'
+import profilePhoto from "../assets/profile.png";
 
 interface hearderProps {
   addRemoveDarkMode: () => void;
@@ -11,7 +11,7 @@ interface hearderProps {
 
 const Header = (props: hearderProps) => {
   const [darkMode, setDarkMode] = useState(false);
-  const [profile, setProfile] = useState(false);
+  const [profile, setProfile] = useState(true);
 
   const onSetDarkModeHandler = () => {
     props.addRemoveDarkMode();
@@ -23,25 +23,32 @@ const Header = (props: hearderProps) => {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const token = localStorage.getItem('token');
-      setProfile(() => token ? true: false);
-    }
+      const token = localStorage.getItem("token");
+      setProfile(() => (token ? true : false));
+    };
     fetchJobs();
-  })
+  });
 
   const headerLogoHandler = () => {
     props.setJobsPage();
-  }
+  };
 
   return (
     <div className="header">
       <div className="header__title">
-        <img src={require("../assets/desktop/logo.svg").default} alt="" onClick={headerLogoHandler} />
+        <img
+          src={require("../assets/desktop/logo.svg").default}
+          alt=""
+          onClick={headerLogoHandler}
+        />
       </div>
       <div className="header__left">
         <div className="header__actions">
           <figure>
-            <img src={require("../assets/desktop/icon-sun.svg").default} alt="" />
+            <img
+              src={require("../assets/desktop/icon-sun.svg").default}
+              alt=""
+            />
           </figure>
           <div
             className={"light--dark-switch " + (darkMode && "dark--on")}
@@ -56,10 +63,18 @@ const Header = (props: hearderProps) => {
             />
           </figure>
         </div>
-        {profile && <figure className="profile-photo" onClick={() => {props.setProfilePage()}}>
-          <img src={profilePhoto} alt="" title="Profile" />
-        </figure>
-        }
+          <figure
+            className="profile-photo"
+            onClick={() => {
+              const token = localStorage.getItem("token");
+              if (!token) {
+                return props.setProfilePage();
+              }
+              return props.setProfilePage();
+            }}
+          >
+            <img src={profilePhoto} alt="" title="Profile" />
+          </figure>
       </div>
     </div>
   );

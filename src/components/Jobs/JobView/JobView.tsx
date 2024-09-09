@@ -5,6 +5,7 @@ import Button from '../../UI/Button';
 
 import transformTime from '../../../utils/transformTime'
 import { useEffect, useState } from 'react';
+import { checkExpiredToken } from '../../../utils/resetToken';
 
 interface jobViewProp {
     jobData?: any;
@@ -55,7 +56,11 @@ const JobView = (props: jobViewProp) => {
                     throw new Error('')
 
                 } catch (error) {
-                    setBtnDisable(false);
+                    if (localStorage.getItem('accountType') === 'company') {
+                        setBtnDisable(true);
+                    } else {
+                        setBtnDisable(false);
+                    }
                     setBtnLoading(false);
                 }
             } else {
@@ -73,6 +78,7 @@ const JobView = (props: jobViewProp) => {
             return;
         }
         try {
+            checkExpiredToken()
             const response = await fetch(`${API_BASE_URL}/api/jobs/apply/${props.jobData.id}`,
                 {
                     method: 'POST',

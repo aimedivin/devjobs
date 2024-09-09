@@ -72,11 +72,15 @@ const Login = (props: propsType) => {
 
             if (response.ok) {
                 const { token, refreshToken } = await response.json();
+
                 localStorage.setItem('token', token);
                 localStorage.setItem('refreshToken', refreshToken);
+                localStorage.setItem('expirationTime', `${Date.now() + (3600 * 1000) }`);
+
                 setNotification('Login successful! Welcome!')
                 props.removeAuth();
                 setLoading(false);
+                
             } else if (response.status === 401) {
                 setNotification('Invalid Credentials.')
                 setLoading(false)

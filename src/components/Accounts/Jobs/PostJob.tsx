@@ -5,6 +5,7 @@ import Notification from '../../Notification/Notification'
 
 import './Postjob.css';
 import Button2 from '../../UI/Button2';
+import { checkExpiredToken } from '../../../utils/resetToken';
 
 interface propsType {
     formCancelHandler: () => void
@@ -70,6 +71,7 @@ const PostJob = (props: propsType) => {
         const token = localStorage.getItem('token');
 
         try {
+            checkExpiredToken();
             if (props.formData!.mode) {
                 const response = await fetch(`${API_BASE_URL}/api/jobs/${props.formData!.data[0].id}`,
                     {
@@ -183,9 +185,9 @@ const PostJob = (props: propsType) => {
                         <textarea id="requirementItems" name="requirementItems" required>{props.formData!.mode ? props.formData?.data[0].requirements.items[0] : ''}</textarea>
                         <span>Item 2:</span>
                         <textarea id="requirementItems" name="requirementItems" required>{(props.formData!.mode && props.formData?.data[0].requirements.items[1]) ? props.formData?.data[0].requirements.items[1] : ''}</textarea>
-                        <span>Item 4:</span>
+                        <span>Item 3:</span>
                         <textarea id="requirementItems" name="requirementItems" required>{(props.formData!.mode && props.formData?.data[0].requirements.items[2]) ? props.formData?.data[0].requirements.items[2] : ''}</textarea>
-                        <span>Item 5:</span>
+                        <span>Item 4:</span>
                         <textarea id="requirementItems" name="requirementItems" required>{(props.formData!.mode && props.formData?.data[0].requirements.items[3]) ? props.formData?.data[0].requirements.items[3] : ''}</textarea>
                     </div>
                 </label>

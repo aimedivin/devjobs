@@ -18,6 +18,22 @@
     border-radius: .4rem;
 }
 
+.job_logo {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    z-index: 100;
+}
+
+.company--photo_logo {
+    position: absolute;
+    width: 3.2rem;
+    height: 3.2rem;
+    filter: brightness(40%);
+    top: 0;
+}
+
 .company--photo {
     width: 3.2rem;
     height: 3.2rem;
@@ -27,6 +43,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+}
+
+.company--photo img {
+    width: 75%;
 }
 
 .job__time {
@@ -62,6 +83,7 @@
     color: var(--violet);
     font-size: .9rem;
 }
+
 .jobs--lod-more {
     flex-basis: 100%;
     display: flex;
@@ -77,6 +99,7 @@
         flex-basis: 47%;
     }
 }
+
 @media only screen and (max-width: 992px) {
     .jobs {
         margin: 7rem 3.5rem 4rem 3.5rem;
@@ -86,6 +109,7 @@
         flex-basis: 47%;
     }
 }
+
 @media only screen and (max-width: 768px) {
     .jobs {
         margin: 7rem 2rem 4rem 2rem;
@@ -95,6 +119,7 @@
         flex-basis: 49%;
     }
 }
+
 @media only screen and (max-width: 576px) {
     .jobs {
         margin: 6rem 1.5rem 4rem 1.5rem;

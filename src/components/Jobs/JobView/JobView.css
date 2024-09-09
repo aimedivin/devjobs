@@ -165,6 +165,7 @@
         border-radius: .9rem;
         position: absolute;
         top: -1.75rem;
+        object-fit: contain;
     }
 
     .job-view__company_logo img {

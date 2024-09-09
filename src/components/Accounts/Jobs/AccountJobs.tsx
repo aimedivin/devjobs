@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import transformTime from '../../../utils/transformTime';
 
 import './AccountJobs.css';
 
 import Notification from "../../Notification/Notification";
+import { checkExpiredToken } from "../../../utils/resetToken";
 
 
 interface props {
@@ -34,12 +35,12 @@ interface JobType {
     company?: CompanyType;
 }
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const AccountJobs = (props: props) => {
     const [notification, setNotification] = useState('');
     const [jobsData, setJobs] = useState<JobType[]>(props.jobsData);
-    
+
 
     const jobViewHandler = (event: React.MouseEvent) => {
         const jobId = (event.currentTarget as HTMLElement).getAttribute('id')!;
@@ -54,8 +55,10 @@ const AccountJobs = (props: props) => {
     const token = localStorage.getItem('token')
 
     const deleteJobHandler = async (event: React.FormEvent) => {
+        const jobId =(event.target as HTMLElement).getAttribute('id');
         try {
-            const response = await fetch(`${API_BASE_URL}/api/jobs/${(event.target as HTMLElement).getAttribute('id')}`,
+            checkExpiredToken();
+            const response = await fetch(`${API_BASE_URL}/api/jobs/${jobId}`,
                 {
                     method: 'DELETE',
                     headers: {
@@ -64,8 +67,13 @@ const AccountJobs = (props: props) => {
                 })
 
             if (response.ok) {
+                setJobs(prevData => {
+                    return prevData.filter( job => {
+                        if (job.id === jobId) return false
+                        return true
+                    })
+                })
                 setNotification('Job was Deleted.');
-
                 setTimeout(() => {
                     setNotification('');
                 }, 3000);
@@ -93,49 +101,71 @@ const AccountJobs = (props: props) => {
             {
                 jobsData.length ? jobsData!.map((job) => {
                     return (
-                        <div key={job.id} className="job">
-                            <figure
-                                style={{ backgroundColor: job.company!.logoBackground }}
-                                className="company--photo">
-                                <img
-                                    src={`${API_BASE_URL}/${job.company!.logo}`}
-                                    alt={job.company + "-photo"}
-                                />
-                            </figure>
-                            <div className="job__time">
-                                <span className="job__postedat">{transformTime(job.postedAt)}</span>
-                                <span className="job__time_separator"></span>
-                                <span className="job__contract">{job.contract}</span>
-                            </div>
-                            <div className="job__position">
-                                <span
-                                    onClick={jobViewHandler}
-                                    id={String(job.id)}>
-                                    {job.position}
-                                </span>
-                            </div>
-                            <div className="job__company">
-                                <p>{job.company?.name}</p>
-                            </div>
-                            <div className="job__location">
-                                <p>{job.location}</p>
-                                {(props.accountType === 'company') && <div className="account--job-action">
-                                    <p onClick={(event) => {
-                                        if (props.setJobEdit) {
-                                            props.setJobEdit((event.target as HTMLElement).getAttribute('id')!)
-                                        }
-                                    }} 
-                                    className="account--job-edit" 
-                                    id={job.id}>Edit</p>
-
-                                    <p onClick={deleteJobHandler} id={job.id} className="account--job-delete">Delete</p>
-                                </div>}
-                            </div>
+                      <div key={job.id} className="job">
+                        <figure
+                          style={{
+                            backgroundColor: job.company!.logoBackground,
+                          }}
+                          className="company--photo"
+                        >
+                          <div
+                            style={{
+                              backgroundColor: job.company!.logoBackground,
+                            }}
+                            className="company--photo_logo"
+                          ></div>
+                          <span className="job_logo">{job.company!.logo}</span>
+                        </figure>
+                        <div className="job__time">
+                          <span className="job__postedat">
+                            {transformTime(job.postedAt)}
+                          </span>
+                          <span className="job__time_separator"></span>
+                          <span className="job__contract">{job.contract}</span>
                         </div>
+                        <div className="job__position">
+                          <span onClick={jobViewHandler} id={String(job.id)}>
+                            {job.position}
+                          </span>
+                        </div>
+                        <div className="job__company">
+                          <p>{job.company?.name}</p>
+                        </div>
+                        <div className="job__location">
+                          <p>{job.location}</p>
+                          {props.accountType === "company" && (
+                            <div className="account--job-action">
+                              <p
+                                onClick={(event) => {
+                                  if (props.setJobEdit) {
+                                    props.setJobEdit(
+                                      (
+                                        event.target as HTMLElement
+                                      ).getAttribute("id")!
+                                    );
+                                  }
+                                }}
+                                className="account--job-edit"
+                                id={job.id}
+                              >
+                                Edit
+                              </p>
+
+                              <p
+                                onClick={deleteJobHandler}
+                                id={job.id}
+                                className="account--job-delete"
+                              >
+                                Delete
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     );
                 })
                     :
-                    <p>no Jobs found</p>
+                    <p>No Jobs found</p>
             }
         </div>
     );

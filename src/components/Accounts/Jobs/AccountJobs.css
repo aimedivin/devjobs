@@ -6,6 +6,7 @@
 .account--jobs-title {
     width: 100%;
     font-weight: 500;
+    font-size: 1.1rem;
 }
 .account--jobs .job__location {
     display: flex;

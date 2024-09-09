@@ -6,6 +6,7 @@ import "./Jobs.css";
 
 import Button from "../UI/Button";
 import { PropagateLoader } from "react-spinners";
+import { checkExpiredToken } from "../../utils/resetToken";
 
 
 interface props {
@@ -45,7 +46,7 @@ const Jobs = (props: props) => {
     useEffect(() => {
         
         const fetchJobs = async () => {
-
+            checkExpiredToken();
             const response = await fetch(`${API_BASE_URL}/api/jobs`);
 
             if (response.ok) {
@@ -64,11 +65,15 @@ const Jobs = (props: props) => {
                         if (jobs[i].position!.toLocaleLowerCase() === props.filterData.title!.toLocaleLowerCase()) {
                             result.push(jobs[i]);
                         }
-                        if (jobs[i].contract!.toLocaleLowerCase() === (props.filterData.fulltime === 'on' ? 'full time': 'part time' )) {
+                        if (props.filterData.fulltime === 'on' && (jobs[i].contract!.toLocaleLowerCase() === 'full time')) {
                             result.push(jobs[i]);
                         }
                     }
-
+                    if (!props.filterData.title!.length && 
+                        !props.filterData.location!.length &&
+                        props.filterData.fulltime === 'null'){
+                        result.push(...jobs);
+                        }
                     setJobsData([...Array.from(new Set(result))]);
                     return
                 }
@@ -96,38 +101,39 @@ const Jobs = (props: props) => {
             {
                 jobsData.length ? jobsData!.map((job) => {
                     return (
-                        <div key={job.id} className="job">
-                            <figure
-                                style={{ backgroundColor: job.company!.logoBackground }}
-                                className="company--photo">
-                                <img
-                                    src={`${API_BASE_URL}/${job.company!.logo}`}
-                                    alt={job.company + "-photo"}
-                                />
-                            </figure>
-                            <div className="job__time">
-                                <span className="job__postedat">{transformTime(job.postedAt)}</span>
-                                <span className="job__time_separator"></span>
-                                <span className="job__contract">{job.contract}</span>
-                            </div>
-                            <div className="job__position">
-                                <span
-                                    onClick={jobViewHandler}
-                                    id={String(job.id)}>
-                                    {job.position}
-                                </span>
-                            </div>
-                            <div className="job__company">
-                                <p>{job.company?.name}</p>
-                            </div>
-                            <div className="job__location">
-                                <p>{job.location}</p>
-                            </div>
+                      <div key={job.id} className="job">
+                        <div className="company--photo">
+                          <div
+                            style={{
+                              backgroundColor: job.company!.logoBackground,
+                            }}
+                            className="company--photo_logo"
+                          ></div>
+                          <span className="job_logo">{job.company!.logo}</span>
                         </div>
+                        <div className="job__time">
+                          <span className="job__postedat">
+                            {transformTime(job.postedAt)}
+                          </span>
+                          <span className="job__time_separator"></span>
+                          <span className="job__contract">{job.contract}</span>
+                        </div>
+                        <div className="job__position">
+                          <span onClick={jobViewHandler} id={String(job.id)}>
+                            {job.position}
+                          </span>
+                        </div>
+                        <div className="job__company">
+                          <p>{job.company?.name}</p>
+                        </div>
+                        <div className="job__location">
+                          <p>{job.location}</p>
+                        </div>
+                      </div>
                     );
                 })
                     :
-                    loading ? <div> <PropagateLoader color="#5964e0" /> </div> : <p>no Jobs found</p>
+                    loading ? <div className='page--spinner'> <PropagateLoader color="#5964e0" /> </div> : <p>no Jobs found</p>
             }
             {jobsData.length > 10 && <div className="jobs--lod-more">
                 <Button className="jobs--btn" text="Load More" />

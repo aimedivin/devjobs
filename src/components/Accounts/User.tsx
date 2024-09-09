@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import Button from '../UI/Button';
-import Button2 from '../UI/Button2';
 import AccountJobs from './Jobs/AccountJobs';
 
 import './Company.css';
-import PostJob from './Jobs/PostJob';
 import Notification from '../Notification/Notification';
+import { checkExpiredToken } from '../../utils/resetToken';
+import { PropagateLoader } from 'react-spinners';
 
 interface Props {
     setIsViewJob: (value: any) => void;
@@ -35,16 +35,17 @@ interface AccountType {
 }
 
 
-
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const User = (props: Props) => {
     const [accountData, setAccountData] = useState<AccountType>();
     const [notification, setNotification] = useState('');
+    let [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAccountInfo = async () => {
             const token = localStorage.getItem('token');
+            checkExpiredToken();
             const response = await fetch(`${API_BASE_URL}/api/account`,
                 {
                     headers: {
@@ -55,7 +56,7 @@ const User = (props: Props) => {
 
             if (response.ok) {
                 const account = (await response.json()).account;
-
+                setLoading(false);
                 setAccountData({ ...account })
             }
         }
@@ -71,6 +72,8 @@ const User = (props: Props) => {
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('accountType');
+        localStorage.removeItem('expirationTime');
+        
         setNotification("You're Logged Out")
 
         setTimeout(() => {
@@ -92,6 +95,7 @@ const User = (props: Props) => {
                 <div onClick={logoutHandler}><Button className='' text='Log Out' /></div>
             </div>
         </div>}
+        {loading && <div className='page--spinner'> <PropagateLoader color="#5964e0" /> </div> }
         {accountData && <AccountJobs
             accountType='user'
             setIsViewJob={setIsViewJobHandler}
